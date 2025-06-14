@@ -24,8 +24,8 @@ fun BusStopTile(
     modifier: Modifier = Modifier,
     stopNo: String,
     stopName: String,
-    isFavorite: Boolean,
-    onFavoriteClick: (String) -> Unit,
+    isFavorite: Boolean = false,
+    onFavoriteClick: (String) -> Unit = {},
     onClick: () -> Unit
 ) {
     Row(

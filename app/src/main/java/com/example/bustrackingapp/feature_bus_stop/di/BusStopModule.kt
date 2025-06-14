@@ -38,10 +38,10 @@ object BusStopModule {
         getAllBusStopsUseCase: GetAllBusStopsUseCase,
         getNearbyBusStopsUseCase: GetNearbyBusStopsUseCase,
         getBusStopUseCase: GetBusStopUseCase,
-    ) : BusStopUseCases = BusStopUseCases(
+    ): BusStopUseCases = BusStopUseCases(
         getAllBusStops = getAllBusStopsUseCase,
         getNearbyBusStops = getNearbyBusStopsUseCase,
-        getBusStop = getBusStopUseCase,
+        getBusStop = getBusStopUseCase
     )
 
 }

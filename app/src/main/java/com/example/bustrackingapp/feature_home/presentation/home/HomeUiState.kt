@@ -38,37 +38,3 @@ data class HomeUiState(
         2.962569 to 101.725598   // CIT
     )
 )
-
-//@Stable
-//interface HomeUiState {
-//    val nearbyBusStops : List<BusStopWithRoutes>
-//    val nearbyBuses : List<BusWithRoute>
-//    val isLoadingNearbyStops : Boolean
-//    val isLoadingNearbyBuses : Boolean
-//    val isRefreshingNearbyStops : Boolean
-//    val isRefreshingNearbyBuses : Boolean
-//    val errorNearbyBuses : String?
-//    val errorNearbyStops : String?
-//}
-//
-//class MutableHomeUiState: HomeUiState {
-//    override var nearbyBusStops : List<BusStopWithRoutes> by mutableStateOf(emptyList())
-//    override var nearbyBuses : List<BusWithRoute> by mutableStateOf(emptyList())
-//    override var isLoadingNearbyStops : Boolean by mutableStateOf(false)
-//    override var isLoadingNearbyBuses : Boolean by mutableStateOf(false)
-//    override var isRefreshingNearbyStops : Boolean by mutableStateOf(false)
-//    override var isRefreshingNearbyBuses : Boolean by mutableStateOf(false)
-//    override var errorNearbyBuses : String? by mutableStateOf(null)
-//    override var errorNearbyStops : String? by mutableStateOf(null)
-//}
-
-val routePoints : List<Pair<Double,Double>> = listOf(
-    2.975298 to 101.729192,  // COE
-    2.975777 to 101.728832,  // Murni
-    2.977944 to 101.730570,  // Admin
-    2.976673 to 101.734034,  // Library
-    2.970936 to 101.730657,  // ILMU
-    2.968112 to 101.728183,  // DSS
-    2.965783 to 101.731220,  // Amanah
-    2.962569 to 101.725598   // CIT
-)
