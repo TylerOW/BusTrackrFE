@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
     private val busStopUseCases: BusStopUseCases,
     private val nearbyBusesUseCase: GetNearbyBusesUseCase,
     private val locationRepository: LocationRepository,
-    private val prefs: UserPrefsRepository,
+    private val userPrefs: UserPrefsRepository,
     @ApplicationContext private val appContext: Context,
     private val socket: Socket
 ) : ViewModel() {
@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        prefs.getFavoriteStops()
+        userPrefs.getFavoriteStops()
             .onEach { favoritedStopNos = it }
             .launchIn(viewModelScope)
 
