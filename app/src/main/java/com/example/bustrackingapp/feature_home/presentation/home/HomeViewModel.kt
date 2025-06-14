@@ -18,6 +18,7 @@ import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.core.util.Resource
 import com.example.bustrackingapp.feature_bus.domain.use_cases.GetNearbyBusesUseCase
 import com.example.bustrackingapp.feature_bus_stop.domain.use_case.BusStopUseCases
+import com.example.bustrackingapp.core.domain.repository.UserPrefsRepository
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,11 +33,15 @@ class HomeViewModel @Inject constructor(
     private val busStopUseCases: BusStopUseCases,
     private val nearbyBusesUseCase: GetNearbyBusesUseCase,
     private val locationRepository: LocationRepository,
+    private val prefs: UserPrefsRepository,
     @ApplicationContext private val appContext: Context,
     private val socket: Socket
 ) : ViewModel() {
 
     private val logger = LoggerUtil(c = "HomeViewModel")
+
+    /** Currently favorited stop numbers */
+    private var favoritedStopNos: Set<String> = emptySet()
 
     /** Convert UI state's static routePoints to a list of LatLngs */
     fun getRouteLatLng(): List<LatLng> =
@@ -46,6 +51,10 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
+        prefs.getFavoriteStops()
+            .onEach { favoritedStopNos = it }
+            .launchIn(viewModelScope)
+
         getLocationBusesStops()
         setupBusSocketListener()
     }
@@ -87,7 +96,9 @@ class HomeViewModel @Inject constructor(
             val busSpeedMps = 8.33f              // ~30 km/h
             val thresholdDistance = busSpeedMps * 300f  // 5 minutes = 300 s
 
-            uiState.nearbyBusStops.forEach { stop ->
+            uiState.nearbyBusStops
+                .filter { favoritedStopNos.contains(it.stopNo) }
+                .forEach { stop ->
                 val stopLat = stop.location.lat
                 val stopLng = stop.location.lng
                 val dist = FloatArray(1)
@@ -97,7 +108,7 @@ class HomeViewModel @Inject constructor(
                     dist
                 )
                 if (dist[0] <= thresholdDistance) {
-                    sendBusArrivalNotification(routeNo, stop.name, dist[0])
+                    sendBusArrivalNotification(routeNo, stop.name, dist[0], true)
                 }
             }
         }
@@ -105,7 +116,12 @@ class HomeViewModel @Inject constructor(
     }
 
     /** Build and fire a local notification */
-    private fun sendBusArrivalNotification(routeNo: String, stopName: String, distance: Float) {
+    private fun sendBusArrivalNotification(
+        routeNo: String,
+        stopName: String,
+        distance: Float,
+        isFavorite: Boolean = false
+    ) {
         val intent = Intent(appContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -114,10 +130,13 @@ class HomeViewModel @Inject constructor(
         )
 
         val etaMinutes = (distance / 8.33f / 60f).toInt()
-        val content = if (etaMinutes > 0)
+        val content = if (isFavorite) {
+            "Bus approaching Favorited Bus Stop!"
+        } else if (etaMinutes > 0) {
             "$etaMinutes min to $stopName"
-        else
+        } else {
             "Arriving at $stopName"
+        }
 
         val notif = NotificationCompat.Builder(appContext, "bus_arrival_channel")
             .setSmallIcon(R.drawable.locate_bus)
@@ -130,6 +149,10 @@ class HomeViewModel @Inject constructor(
 
         NotificationManagerCompat.from(appContext)
             .notify(routeNo.hashCode() + stopName.hashCode(), notif)
+
+        if (isFavorite) {
+            uiState = uiState.copy(notificationMessage = content)
+        }
     }
 
     /** Fires a sample notification for testing */

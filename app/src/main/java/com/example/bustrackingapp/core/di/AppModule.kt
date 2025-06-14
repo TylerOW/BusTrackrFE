@@ -61,7 +61,8 @@ object AppModule {
     @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl(Constants.baseUrl)    // ← single source of truth
+            // use single base URL defined in Constants
+            .baseUrl(Constants.baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
