@@ -44,12 +44,13 @@ fun BusStopsScreen(
 ) {
     val logger = LoggerUtil(c = "BusStopsScreen")
 
-    // collect favorites from ViewModel
-     val favorites by busStopsViewModel.favoriteStops.collectAsState(initial = emptySet())
+    // Observe the overall UI state and the favorites set
+    val state by busStopsViewModel.uiState.collectAsState()
+    val favorites by busStopsViewModel.favoriteStops.collectAsState(initial = emptySet())
 
-    LaunchedEffect(key1 = busStopsViewModel.uiState.error) {
+    LaunchedEffect(key1 = state.error) {
         logger.info("Show Snackbar")
-        busStopsViewModel.uiState.error?.let { snackbarState.showSnackbar(it) }
+        state.error?.let { snackbarState.showSnackbar(it) }
     }
 
     Scaffold(
@@ -65,8 +66,8 @@ fun BusStopsScreen(
             SnackbarHost(hostState = snackbarState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = if (busStopsViewModel.uiState.error != null) Red400 else MaterialTheme.colorScheme.surface,
-                    contentColor = if (busStopsViewModel.uiState.error != null) White else MaterialTheme.colorScheme.onSurface
+                    containerColor = if (state.error != null) Red400 else MaterialTheme.colorScheme.surface,
+                    contentColor = if (state.error != null) White else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -76,14 +77,14 @@ fun BusStopsScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-               BusStopList(
-      busStops         = busStopsViewModel.uiState.busStops,
-      isLoading        = busStopsViewModel.uiState.isLoading,
-      isRefreshing     = busStopsViewModel.uiState.isRefreshing,
-      onRefresh        = busStopsViewModel::getAllBusStops,
-      favorites        = favorites,
-      onFavoriteClick  = busStopsViewModel::toggleFavorite,
-      onStopItemClick  = onStopItemClick
+            BusStopList(
+                busStops        = state.busStops,
+                isLoading       = state.isLoading,
+                isRefreshing    = state.isRefreshing,
+                onRefresh       = busStopsViewModel::getAllBusStops,
+                favorites       = favorites,
+                onFavoriteClick = busStopsViewModel::toggleFavorite,
+                onStopItemClick = onStopItemClick
             )
         }
     }
